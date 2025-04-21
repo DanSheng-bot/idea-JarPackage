@@ -10,6 +10,7 @@ import com.github.gedoor.jarpackage.util.Messages
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.project.Project
@@ -23,9 +24,8 @@ class AllPacker(
     dataContext: DataContext,
     private val exportPath: String,
     private val exportJarName: String
-) : Packager() {
+) : Packager(dataContext) {
 
-    private val project: Project = dataContext.getData(CommonDataKeys.PROJECT)!!
     private val virtualFiles: Array<VirtualFile> = dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)!!
     private val outPutDir: VirtualFile =
         CompilerPaths.getModuleOutputDirectory(dataContext.getData(LangDataKeys.MODULE)!!, false)!!
@@ -59,16 +59,4 @@ class AllPacker(
         CommonUtils.createNewJar(project, Path.of(exportPath, exportJarName), filePaths, jarEntryNames)
     }
 
-    override fun finished(b: Boolean, error: Int, i1: Int, compileContext: CompileContext) {
-        if (error == 0) {
-            try {
-                pack()
-            } catch (e: Exception) {
-                Messages.error(project, e.localizedMessage)
-                e.printStackTrace()
-            }
-        } else {
-            Messages.error(project, "compile error")
-        }
-    }
 }

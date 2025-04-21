@@ -21,9 +21,8 @@ import com.intellij.psi.PsiManager
 import java.io.IOException
 import java.nio.file.Path
 
-class EachPacker(dataContext: DataContext, private val exportPath: String) : Packager() {
+class EachPacker(dataContext: DataContext, private val exportPath: String) : Packager(dataContext) {
 
-    private val project: Project = dataContext.getData(CommonDataKeys.PROJECT)!!
     private val virtualFiles: Array<VirtualFile> = dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)!!
     private val outPutDir: VirtualFile =
         CompilerPaths.getModuleOutputDirectory(dataContext.getData(LangDataKeys.MODULE)!!, false)!!
@@ -72,16 +71,5 @@ class EachPacker(dataContext: DataContext, private val exportPath: String) : Pac
         }
     }
 
-    override fun finished(b: Boolean, error: Int, i1: Int, compileContext: CompileContext) {
-        if (error == 0) {
-            try {
-                pack()
-            } catch (e: Exception) {
-                Messages.error(project, e.localizedMessage)
-                e.printStackTrace()
-            }
-        } else {
-            Messages.error(project, "compile error")
-        }
-    }
+
 }
