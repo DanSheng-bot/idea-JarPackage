@@ -34,6 +34,7 @@ class AllPacker(
     override fun pack() {
         val allVfs = HashSet<VirtualFile>()
         for (virtualFile in virtualFiles) {
+
             val psiDirectory = PsiManager.getInstance(project).findDirectory(virtualFile)
             if (psiDirectory != null) {
                 val psiPackage = JavaDirectoryService.getInstance().getPackage(psiDirectory)!!

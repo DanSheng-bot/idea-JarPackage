@@ -2,3 +2,5 @@
 .idea
 .qodana
 build
+/package-path.properties
+/out/
