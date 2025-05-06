@@ -16,17 +16,17 @@ abstract class Packager(dataContext: DataContext) : CompileStatusNotification {
     abstract fun pack()
 
     override fun finished(b: Boolean, error: Int, i1: Int, compileContext: CompileContext) {
-        if (error == 0) {
-            try {
-                ApplicationManager.getApplication().runWriteAction {
+        ApplicationManager.getApplication().runWriteAction {
+            if (error == 0) {
+                try {
                     pack()
+                } catch (e: Exception) {
+                    Messages.error(project, e.localizedMessage)
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                Messages.error(project, e.localizedMessage)
-                e.printStackTrace()
+            } else {
+                Messages.error(project, "compile error")
             }
-        } else {
-            Messages.error(project, "compile error")
         }
     }
 
