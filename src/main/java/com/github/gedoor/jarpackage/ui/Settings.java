@@ -33,7 +33,7 @@ import java.util.Properties;
 
 import static com.intellij.openapi.ui.Messages.showErrorDialog;
 
-@SuppressWarnings("DialogTitleCapitalization")
+@SuppressWarnings("ALL")
 public class Settings extends JDialog {
     private static File tempFile = null;
     private Properties properties = null;
@@ -90,7 +90,7 @@ public class Settings extends JDialog {
 
         try {
 
-            tempFile = new File(project.getBasePath() + File.separator + "package-path.properties");
+            tempFile = new File(project.getBasePath() + File.separator + ".idea" + File.separator + "package-path.properties");
 
             if (!tempFile.exists()) {
                 //noinspection ResultOfMethodCallIgnored
@@ -238,16 +238,11 @@ public class Settings extends JDialog {
         }
     }
 
-    private static class FileChooserConsumerImpl implements Consumer<VirtualFile> {
-        private final JTextField ouPutDirectoryField;
-
-        public FileChooserConsumerImpl(JTextField jTextField) {
-            this.ouPutDirectoryField = jTextField;
-        }
+    private record FileChooserConsumerImpl(JTextField ouPutDirectoryField) implements Consumer<VirtualFile> {
 
         @Override
-        public void consume(VirtualFile virtualFile) {
-            this.ouPutDirectoryField.setText(virtualFile.getPath());
+            public void consume(VirtualFile virtualFile) {
+                this.ouPutDirectoryField.setText(virtualFile.getPath());
+            }
         }
-    }
 }
