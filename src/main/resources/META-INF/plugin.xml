@@ -1,11 +1,13 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<!--suppress PluginXmlI18n -->
 <idea-plugin>
     <id>com.github.gedoor.jarpackage</id>
     <name>JarPackage</name>
-    <vendor url="https://github.com/gedoor/JarPackage">gedoor</vendor>
+    <vendor url="https://github.com/DanSheng-bot">DanSheng-bot</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->

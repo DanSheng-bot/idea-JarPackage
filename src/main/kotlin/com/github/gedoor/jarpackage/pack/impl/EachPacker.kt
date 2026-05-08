@@ -3,10 +3,7 @@ package com.github.gedoor.jarpackage.pack.impl
 import com.github.gedoor.jarpackage.pack.Packager
 import com.github.gedoor.jarpackage.util.CommonUtils
 import com.github.gedoor.jarpackage.util.Util
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.actionSystem.LangDataKeys
-import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiDirectory
@@ -15,10 +12,6 @@ import java.io.IOException
 import java.nio.file.Path
 
 class EachPacker(dataContext: DataContext, private val exportPath: String) : Packager(dataContext) {
-
-    private val virtualFiles: Array<VirtualFile> = dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)!!
-    private val outPutDir: VirtualFile =
-        CompilerPaths.getModuleOutputDirectory(dataContext.getData(LangDataKeys.MODULE)!!, false)!!
 
     @Throws(Exception::class)
     override fun pack() {

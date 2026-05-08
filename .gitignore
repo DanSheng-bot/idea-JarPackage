@@ -1,6 +1,8 @@
 .gradle
 .idea
+.intellijPlatform
+.kotlin
 .qodana
 build
+out
 /package-path.properties
-/out/
