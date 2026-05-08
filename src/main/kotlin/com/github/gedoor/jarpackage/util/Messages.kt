@@ -83,7 +83,7 @@ object Messages : Constants {
     @JvmStatic
     @JvmOverloads
     fun notify(type: NotificationType, title: String, message: String, actions: List<AnAction>? = null) {
-        val notification = Notification(Constants.actionName, title, message, type)
+        val notification = Notification("Export Jar", title, message, type)
         ContainerUtil.notNullize(actions).forEach(Consumer { action: AnAction ->
             notification.addAction(action)
         })

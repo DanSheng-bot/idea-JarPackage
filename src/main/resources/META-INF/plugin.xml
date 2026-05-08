@@ -11,6 +11,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <notificationGroup id="Export Jar"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
     </extensions>
 
 
