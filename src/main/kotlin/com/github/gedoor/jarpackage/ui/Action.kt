@@ -1,6 +1,5 @@
 package com.github.gedoor.jarpackage.ui
 
-import com.intellij.concurrency.resetThreadContext
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -15,8 +14,8 @@ import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiPackage
 import org.apache.http.util.TextUtils
-import java.awt.Toolkit
 
+@Suppress("ControlFlowWithEmptyBody")
 class Action : AnAction() {
 
     override fun getActionUpdateThread(): ActionUpdateThread {
@@ -75,24 +74,18 @@ class Action : AnAction() {
     }
 
     override fun actionPerformed(event: AnActionEvent) {
-        @Suppress("UnstableApiUsage")
-        resetThreadContext().use {
-            val setting = Settings(event.dataContext)
-            setting.setResizable(false)
-            setting.setSize(500, 200)
-            val screenSize = Toolkit.getDefaultToolkit().screenSize
-            val frameSize = setting.size
-            if (frameSize.height > screenSize.height) {
-                frameSize.height = screenSize.height
-            }
+        // 1. 获取 DataContext
+        val dataContext = event.dataContext
 
-            if (frameSize.width > screenSize.width) {
-                frameSize.width = screenSize.width
-            }
+        // 2. 实例化你重构后的 Kotlin 对话框
+        // 建议在 SettingsDialog 的 init 中设置好 title 和 resizable
+        val dialog = SettingsDialog(dataContext)
 
-            setting.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2)
-            setting.setTitle("Package Jars")
-            setting.isVisible = true
+        // 3. 显示对话框
+        // showAndGet() 会处理居中、模态显示，并返回用户是否点击了 OK
+        if (dialog.showAndGet()) {
+            // 如果需要，可以在这里处理点击 OK 后的额外逻辑
+            // 但大部分逻辑建议已经封装在 SettingsDialog.doOKAction() 中
         }
     }
 
