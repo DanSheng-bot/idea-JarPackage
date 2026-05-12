@@ -24,7 +24,7 @@ import java.io.FileOutputStream
 import java.util.*
 import javax.swing.JComponent
 
-class SettingsDialog(private val dataContext: DataContext) : DialogWrapper(true) {
+class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(true) {
 
     private val project: Project = dataContext.getData(CommonDataKeys.PROJECT)!!
     private val module = dataContext.getData(LangDataKeys.MODULE)!!

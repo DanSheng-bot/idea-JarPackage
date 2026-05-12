@@ -79,7 +79,7 @@ class Action : AnAction() {
 
         // 2. 实例化你重构后的 Kotlin 对话框
         // 建议在 SettingsDialog 的 init 中设置好 title 和 resizable
-        val dialog = SettingsDialog(dataContext)
+        val dialog = PackageJarDialog(dataContext)
 
         // 3. 显示对话框
         // showAndGet() 会处理居中、模态显示，并返回用户是否点击了 OK
