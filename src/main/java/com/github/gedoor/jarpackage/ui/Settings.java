@@ -120,6 +120,7 @@ public class Settings extends JDialog {
             Object exportPath = properties.get(getPropertyKey());
             if (exportPath == null) {
                 exportPath = CompilerPaths.getModuleOutputPath(module, false);
+                exportPath = new File(project.getBasePath()).getParent() + File.separator + "JAR";
             }
             assert exportPath != null;
             this.exportDirectoryField.setText(exportPath.toString());
