@@ -9,15 +9,15 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.observable.util.not
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiManager
-import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
-import com.intellij.ui.layout.not
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -31,9 +31,10 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
     private val virtualFiles = dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)!!
 
     // 状态变量
+    private val propertyGraph = PropertyGraph()
     private var jarName = ""
     private var exportPath = ""
-    private var exportEachChildren = false
+    private val exportEachProp = propertyGraph.property(false)
     private var fastMode = true
 
     private val properties = Properties()
@@ -51,29 +52,18 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
 
     override fun createCenterPanel(): JComponent {
         mainPanel = panel {
-            // 1. 定义一个变量，通过在一个不显示的 row 中创建它来完成初始化
-            lateinit var exportEachCb: Cell<JBCheckBox>
 
-            // 这里我们不在顶层直接写 checkBox，因为那不是合法的 DSL 语法
-            // 我们利用一个占位符或在后面的 row 中定义，但为了解决顺序问题，可以这样做：
-
-            row {
-                // 先在这里创建，但我们一会儿把它“移动”到 Options 组
-                exportEachCb = checkBox("Export each children")
-                    .bindSelected({ exportEachChildren }, { exportEachChildren = it })
-            }.visible(false) // 这一行设为不可见，仅仅为了初始化变量
-
-            // 第二行：Jar Name
+            // 第1行：Jar Name
             row("Jar name:") {
                 textField()
                     .bindText({ jarName }, { jarName = it })
                     .columns(COLUMNS_MEDIUM)
                     // 现在 exportEachCb 已经初始化过了，可以使用 .selected
-                    .enabledIf(exportEachCb.selected.not())
+                    .enabledIf(exportEachProp.not())
                     .comment("The name of the generated .jar file")
             }
 
-            // 第三行：Output Path
+            // 第2行：Output Path
             row("Output path:") {
                 val descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
                     .withTitle("Select Output Path")
@@ -84,12 +74,11 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
                     .align(AlignX.FILL)
             }
 
-            // 第四行：选项组
+            // 第3行：选项组
             group("Options") {
                 row {
-                    // 将上面创建好的组件通过 cell 放置在这里显示出来
-                    cell(exportEachCb.component)
-                        .visible(true) // 确保在这里是可见的状态
+                    checkBox("Export each children")
+                        .bindSelected(exportEachProp)
 
                     checkBox("Fast mode")
                         .bindSelected({ fastMode }, { fastMode = it })
@@ -120,7 +109,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         }
 
         // 执行打包逻辑  [cite: 2, 164-173]
-        val packager = if (exportEachChildren) {
+        val packager = if (exportEachProp.get()) {
             EachPacker(dataContext, exportPath.trim())
         } else {
             AllPacker(dataContext, exportPath.trim(), finalJarName)
