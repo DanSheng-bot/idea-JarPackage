@@ -46,7 +46,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
     init {
         title = "Package Jars"
         isResizable = false
-        loadSettings() // 初始化数据  [cite: 2, 70-120]
+        loadData() // 初始化数据
         init() // 必须调用，否则界面不显示
     }
 
@@ -125,9 +125,8 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         super.doOKAction() // 关闭窗口
     }
 
-    // --- 数据持久化逻辑 (保持原逻辑不变)  [cite: 2, 104-124] ---
-
-    private fun loadSettings() {
+    // --- 数据持久化逻辑
+    private fun loadData() {
         try {
             if (tempFile.exists()) {
                 FileInputStream(tempFile).use { properties.load(it) }
@@ -141,7 +140,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
             if (savedJarName != null) {
                 jarName = savedJarName
             } else {
-                // 2. 如果没存过，计算默认值  [cite: 2, 108-115]
+                // 2. 如果没存过，计算默认值
                 val names = virtualFiles.mapNotNull { file ->
                     PsiManager.getInstance(project).findDirectory(file)?.let {
                         JavaDirectoryService.getInstance().getPackage(it)?.qualifiedName
@@ -159,7 +158,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
                 jarName = defaultName
             }
 
-            // 3. 读取路径逻辑  [cite: 2, 118-124]
+            // 3. 读取路径逻辑
             exportPath = properties.getProperty(key) ?: (File(project.basePath!!).parent + File.separator + "JAR")
 
         } catch (e: Exception) {
