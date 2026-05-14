@@ -8,9 +8,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiManager
-import java.io.IOException
 import java.nio.file.Path
 
+@Suppress("DuplicatedCode")
 class EachPacker(dataContext: DataContext, private val exportPath: String) : Packager(dataContext) {
 
     @Throws(Exception::class)
@@ -30,23 +30,25 @@ class EachPacker(dataContext: DataContext, private val exportPath: String) : Pac
                 psiDirectory = PsiManager.getInstance(project).findDirectory(directory)
             } while (psiDirectory == null)
             val psiPackage = JavaDirectoryService.getInstance().getPackage(psiDirectory)!!
-            var pvf: VirtualFile = outPutDir
-            val packageNames = psiPackage.qualifiedName
-                .split("\\.".toRegex())
-                .dropLastWhile { it.isEmpty() }
-                .toTypedArray()
-            for (n in packageNames) {
-                pvf = pvf.findChild(n) ?: throw IOException("$n 文件夹不存在")
-            }
             val allVfs = HashSet<VirtualFile>()
-            CommonUtils.collectExportFilesNest(project, allVfs, pvf)
             val filePaths: MutableList<Path> = ArrayList()
             val jarEntryNames: MutableList<String> = ArrayList()
-            val outIndex = outPutDir.path.length + 1
-            val vfList = allVfs.sortedBy { it.path }
-            for (vf in vfList) {
-                filePaths.add(vf.toNioPath())
-                jarEntryNames.add(vf.path.substring(outIndex))
+            outputRoots.forEach loopOutput@{ outputDir ->
+                var pvf: VirtualFile = outputDir
+                val packageNames = psiPackage.qualifiedName
+                    .split("\\.".toRegex())
+                    .dropLastWhile { it.isEmpty() }
+                    .toTypedArray()
+                for (n in packageNames) {
+                    pvf = pvf.findChild(n) ?: return@loopOutput
+                }
+                CommonUtils.collectExportFilesNest(project, allVfs, pvf)
+                val outIndex = outputDir.path.length + 1
+                val vfList = allVfs.sortedBy { it.path }
+                for (vf in vfList) {
+                    filePaths.add(vf.toNioPath())
+                    jarEntryNames.add(vf.path.substring(outIndex))
+                }
             }
             CommonUtils.createNewJar(
                 project,

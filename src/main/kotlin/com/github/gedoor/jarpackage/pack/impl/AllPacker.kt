@@ -6,9 +6,9 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiManager
-import java.io.IOException
 import java.nio.file.Path
 
+@Suppress("DuplicatedCode")
 class AllPacker(
     dataContext: DataContext,
     private val exportPath: String,
@@ -18,28 +18,30 @@ class AllPacker(
     @Throws(Exception::class)
     override fun pack() {
         val allVfs = HashSet<VirtualFile>()
+        val filePaths: MutableList<Path> = ArrayList()
+        val jarEntryNames: MutableList<String> = ArrayList()
         for (virtualFile in virtualFiles) {
             val psiDirectory = PsiManager.getInstance(project).findDirectory(virtualFile)
             if (psiDirectory != null) {
                 val psiPackage = JavaDirectoryService.getInstance().getPackage(psiDirectory)!!
-                var pvf: VirtualFile = outPutDir
-                val packageNames = psiPackage.qualifiedName
-                    .split("\\.".toRegex())
-                    .dropLastWhile { it.isEmpty() }
-                    .toTypedArray()
-                for (n in packageNames) {
-                    pvf = pvf.findChild(n) ?: throw IOException("$n 文件夹不存在")
+                outputRoots.forEach loopOutput@{ outputRoot ->
+                    var pvf: VirtualFile = outputRoot
+                    val packageNames = psiPackage.qualifiedName
+                        .split("\\.".toRegex())
+                        .dropLastWhile { it.isEmpty() }
+                        .toTypedArray()
+                    for (n in packageNames) {
+                        pvf = pvf.findChild(n) ?: return@loopOutput
+                    }
+                    CommonUtils.collectExportFilesNest(project, allVfs, pvf)
+                    val outIndex = outputRoot.path.length + 1
+                    val vfsList = allVfs.sortedBy { it.path }
+                    for (vf in vfsList) {
+                        filePaths.add(vf.toNioPath())
+                        jarEntryNames.add(vf.path.substring(outIndex))
+                    }
                 }
-                CommonUtils.collectExportFilesNest(project, allVfs, pvf)
             }
-        }
-        val filePaths: MutableList<Path> = ArrayList()
-        val jarEntryNames: MutableList<String> = ArrayList()
-        val outIndex = outPutDir.path.length + 1
-        val vfsList = allVfs.sortedBy { it.path }
-        for (vf in vfsList) {
-            filePaths.add(vf.toNioPath())
-            jarEntryNames.add(vf.path.substring(outIndex))
         }
         CommonUtils.createNewJar(project, Path.of(exportPath, exportJarName), filePaths, jarEntryNames)
     }

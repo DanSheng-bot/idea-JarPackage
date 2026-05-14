@@ -14,13 +14,28 @@ abstract class Packager(dataContext: DataContext) {
     protected val project: Project = dataContext.getData(CommonDataKeys.PROJECT)!!
     protected val virtualFiles: Array<VirtualFile> = dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)!!
     protected val module = dataContext.getData(LangDataKeys.MODULE)!!
-    protected val outPutDir: VirtualFile = CompilerModuleExtension.getInstance(module)!!.compilerOutputPath!!
+    val javaRoot: VirtualFile? = CompilerModuleExtension.getInstance(module)?.compilerOutputPath
+    val outputRoots: ArrayList<VirtualFile> = arrayListOf()
 
     @Throws(Exception::class)
     abstract fun pack()
 
     suspend fun invoke() {
         runCatching {
+            if (javaRoot != null) {
+                outputRoots.add(javaRoot)
+
+                // 2. 向上找两级到 classes/ 目录
+                val classesDir = javaRoot.parent?.parent
+
+                // 3. 横向寻找对应的 kotlin 编译目录 (如: .../build/classes/kotlin/main)
+                // javaRoot.name 通常是 "main" 或 "test"
+                val kotlinRoot = classesDir?.findChild("kotlin")?.findChild(javaRoot.name)
+
+                if (kotlinRoot != null && kotlinRoot.exists()) {
+                    outputRoots.add(kotlinRoot)
+                }
+            }
             readAction {
                 pack()
             }
