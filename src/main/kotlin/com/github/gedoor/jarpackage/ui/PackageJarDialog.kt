@@ -1,5 +1,6 @@
 package com.github.gedoor.jarpackage.ui
 
+import com.github.gedoor.jarpackage.pack.PackageService
 import com.github.gedoor.jarpackage.pack.impl.AllPacker
 import com.github.gedoor.jarpackage.pack.impl.EachPacker
 import com.github.gedoor.jarpackage.util.Messages
@@ -7,8 +8,9 @@ import com.github.gedoor.jarpackage.util.Util
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.LangDataKeys
-import com.intellij.openapi.compiler.CompilerManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.observable.util.not
 import com.intellij.openapi.project.Project
@@ -17,12 +19,17 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.psi.JavaDirectoryService
 import com.intellij.psi.PsiManager
+import com.intellij.task.ProjectTaskListener
+import com.intellij.task.ProjectTaskManager
 import com.intellij.ui.dsl.builder.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.*
 import javax.swing.JComponent
+import kotlin.coroutines.resume
 
 class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(true) {
 
@@ -108,6 +115,9 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
             return
         }
 
+        saveSettings()
+        super.doOKAction() // 关闭窗口
+
         // 执行打包逻辑  [cite: 2, 164-173]
         val packager = if (exportEachProp.get()) {
             EachPacker(dataContext, exportPath.trim())
@@ -115,14 +125,31 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
             AllPacker(dataContext, exportPath.trim(), finalJarName)
         }
 
-        if (fastMode) {
-            CompilerManager.getInstance(project).make(module, packager)
-        } else {
-            CompilerManager.getInstance(project).compile(module, packager)
+        val packageService = project.service<PackageService>()
+        packageService.coroutineScope.launch {
+            if (executeBuild(project, module)) {
+                packager.invoke()
+            }
         }
+    }
 
-        saveSettings()
-        super.doOKAction() // 关闭窗口
+    suspend fun executeBuild(project: Project, ideaModule: Module): Boolean {
+        val taskManager = ProjectTaskManager.getInstance(project)
+        // 使用 ProjectTaskListener 订阅编译总线
+        val isSuccess = suspendCancellableCoroutine<Boolean> { continuation ->
+            val connection = project.messageBus.connect()
+            connection.subscribe(ProjectTaskListener.TOPIC, object : ProjectTaskListener {
+                override fun finished(result: ProjectTaskManager.Result) {
+                    connection.disconnect()
+                    continuation.resume(!result.hasErrors() && !result.isAborted)
+                }
+            })
+            when {
+                fastMode -> taskManager.build(ideaModule)
+                else -> taskManager.rebuild(ideaModule)
+            }
+        }
+        return isSuccess
     }
 
     // --- 数据持久化逻辑
