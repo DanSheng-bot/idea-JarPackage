@@ -31,8 +31,7 @@ class EachPacker(dataContext: DataContext, private val exportPath: String) : Pac
             } while (psiDirectory == null)
             val psiPackage = JavaDirectoryService.getInstance().getPackage(psiDirectory)!!
             val allVfs = HashSet<VirtualFile>()
-            val filePaths: MutableList<Path> = ArrayList()
-            val jarEntryNames: MutableList<String> = ArrayList()
+            val jarInfo = LinkedHashMap<String, Path>()
             outputRoots.forEach loopOutput@{ outputDir ->
                 var pvf: VirtualFile = outputDir
                 val packageNames = psiPackage.qualifiedName
@@ -46,15 +45,14 @@ class EachPacker(dataContext: DataContext, private val exportPath: String) : Pac
                 val outIndex = outputDir.path.length + 1
                 val vfList = allVfs.sortedBy { it.path }
                 for (vf in vfList) {
-                    filePaths.add(vf.toNioPath())
-                    jarEntryNames.add(vf.path.substring(outIndex))
+                    val jarEntryName = vf.path.substring(outIndex)
+                    jarInfo[jarEntryName] = vf.toNioPath()
                 }
             }
             CommonUtils.createNewJar(
                 project,
                 Path.of(exportPath, psiPackage.qualifiedName + ".jar"),
-                filePaths,
-                jarEntryNames
+                jarInfo
             )
         }
     }

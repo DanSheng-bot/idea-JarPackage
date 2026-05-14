@@ -23,7 +23,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 import java.util.jar.Attributes
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
@@ -62,7 +62,7 @@ object CommonUtils {
     }
 
     @JvmStatic
-    fun createNewJar(project: Project?, jarFileFullPath: Path, filePaths: List<Path>, entryNames: List<String?>) {
+    fun createNewJar(project: Project, jarFileFullPath: Path, jarInfo: LinkedHashMap<String, Path>) {
         val manifest = Manifest()
         val mainAttributes = manifest.mainAttributes
         mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
@@ -72,14 +72,11 @@ object CommonUtils {
                 BufferedOutputStream(os).use { bos ->
                     JarOutputStream(bos, manifest).use { jos ->
                         val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
-                        info(project!!, "start package $jarFileFullPath at ${dateFormat.format(Date())}")
-                        for (i in entryNames.indices) {
-                            val entryName = entryNames[i]
-                            val je = JarEntry(entryName)
-                            val filePath = filePaths[i]
-                            // using origin entry(file) last modified time
-                            je.lastModifiedTime = Files.getLastModifiedTime(filePath)
-                            jos.putNextEntry(je)
+                        info(project, "start package $jarFileFullPath at ${dateFormat.format(Date())}")
+                        jarInfo.forEach { (entryName, filePath) ->
+                            val jarEntry = JarEntry(entryName)
+                            jarEntry.lastModifiedTime = Files.getLastModifiedTime(filePath)
+                            jos.putNextEntry(jarEntry)
                             if (!Files.isDirectory(filePath)) {
                                 jos.write(Files.readAllBytes(filePath))
                             }

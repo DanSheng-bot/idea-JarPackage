@@ -18,8 +18,7 @@ class AllPacker(
     @Throws(Exception::class)
     override fun pack() {
         val allVfs = HashSet<VirtualFile>()
-        val filePaths: MutableList<Path> = ArrayList()
-        val jarEntryNames: MutableList<String> = ArrayList()
+        val jarInfo = linkedMapOf<String, Path>()
         for (virtualFile in virtualFiles) {
             val psiDirectory = PsiManager.getInstance(project).findDirectory(virtualFile)
             if (psiDirectory != null) {
@@ -37,13 +36,13 @@ class AllPacker(
                     val outIndex = outputRoot.path.length + 1
                     val vfsList = allVfs.sortedBy { it.path }
                     for (vf in vfsList) {
-                        filePaths.add(vf.toNioPath())
-                        jarEntryNames.add(vf.path.substring(outIndex))
+                        val jarEntryName = vf.path.substring(outIndex)
+                        jarInfo[jarEntryName] = vf.toNioPath()
                     }
                 }
             }
         }
-        CommonUtils.createNewJar(project, Path.of(exportPath, exportJarName), filePaths, jarEntryNames)
+        CommonUtils.createNewJar(project, Path.of(exportPath, exportJarName), jarInfo)
     }
 
 }
