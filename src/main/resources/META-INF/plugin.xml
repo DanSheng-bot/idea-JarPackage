@@ -3,7 +3,12 @@
 <idea-plugin>
     <id>com.github.gedoor.jarpackage</id>
     <name>JarPackage</name>
-    <vendor url="https://github.com/DanSheng-bot">DanSheng-bot</vendor>
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://github.com/DanSheng-bot">kun</vendor>
+
+    <description><![CDATA[
+        package files to jar!! https://github.com/DanSheng-bot/idea-JarPackage
+    ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
