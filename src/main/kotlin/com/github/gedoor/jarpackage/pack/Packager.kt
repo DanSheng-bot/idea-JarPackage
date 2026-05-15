@@ -49,13 +49,13 @@ abstract class Packager(dataContext: DataContext) {
 
     protected fun checkJarIsComplete(jarInfo: JarInfo, psiPackage: PsiPackage) {
         val classList = psiPackage.getAllTopClassQualifiedNamesRecursive()
-                classList.forEach { className ->
-                    val entryName = className.replace('.', '/')
-                    val findEntryName = jarInfo.keys.find { it.startsWith(entryName) }
-                    if (findEntryName == null) {
-                        throw IOException("$className not found in JarInfo")
-                    }
-                }
+        classList.forEach { className ->
+            val entryName = className.replace('.', '/')
+            val findEntryName = jarInfo.keys.find { it.startsWith(entryName) }
+            if (findEntryName == null) {
+                throw IOException("$className not found in JarInfo")
+            }
+        }
     }
 
     /**
