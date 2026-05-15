@@ -31,6 +31,9 @@ object CommonUtils {
         Opcodes.API_VERSION
     }
 
+    /**
+     * 收集需要打包的文件
+     */
     @JvmStatic
     fun collectExportFilesNest(project: Project, collected: MutableSet<VirtualFile>, parentVf: VirtualFile) {
         if (!parentVf.isDirectory) {
@@ -49,6 +52,9 @@ object CommonUtils {
         }
     }
 
+    /**
+     * 创建jar文件
+     */
     @JvmStatic
     fun createNewJar(project: Project, jarFileFullPath: Path, jarInfo: JarInfo) {
         val manifest = Manifest()

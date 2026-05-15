@@ -10,6 +10,9 @@ object Util {
         return fileName.matches("[^/\\\\<>*?|\"]+".toRegex())
     }
 
+    /**
+     * 遍历目录
+     */
     fun iterateDirectory(project: Project, directories: HashSet<VirtualFile>, directory: VirtualFile?) {
         if (directory != null) {
             val psiDirectory = PsiManager.getInstance(project).findDirectory(directory)
@@ -21,7 +24,9 @@ object Util {
         }
     }
 
-    @JvmStatic
+    /**
+     * 找出给定的字符串列表中所有字符串的“最长公共前缀”
+     */
     fun getTheSameStart(strings: List<String>?): String {
         return if (!strings.isNullOrEmpty()) {
             var max = 888888
