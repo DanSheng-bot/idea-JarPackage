@@ -48,24 +48,4 @@ object Util {
         }
     }
 
-    private fun getMinorVersion(vs: String): Int {
-        val dashIndex = vs.lastIndexOf(95.toChar())
-        if (dashIndex >= 0) {
-            val builder = StringBuilder()
-            for (idx in dashIndex + 1 until vs.length) {
-                val ch = vs[idx]
-                if (!Character.isDigit(ch)) {
-                    break
-                }
-                builder.append(ch)
-            }
-            if (builder.isNotEmpty()) {
-                try {
-                    return builder.toString().toInt()
-                } catch (ignored: NumberFormatException) {
-                }
-            }
-        }
-        return 0
-    }
 }

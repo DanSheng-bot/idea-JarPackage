@@ -9,7 +9,7 @@ import java.nio.file.Path
 /**
  * open the file in system file explorer
  */
-class ActionShowExplorer(private val filePath: Path) : AnAction(Constants.actionNameExplorer) {
+class ActionShowExplorer(val filePath: Path) : AnAction(Constants.actionNameExplorer) {
 
     override fun actionPerformed(e: AnActionEvent) {
         if (!Files.isDirectory(filePath)) {
@@ -19,9 +19,4 @@ class ActionShowExplorer(private val filePath: Path) : AnAction(Constants.action
         }
     }
 
-    companion object {
-        fun of(filePath: Path): ActionShowExplorer {
-            return ActionShowExplorer(filePath)
-        }
-    }
 }

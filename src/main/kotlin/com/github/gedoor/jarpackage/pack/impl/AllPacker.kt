@@ -2,6 +2,7 @@ package com.github.gedoor.jarpackage.pack.impl
 
 import com.github.gedoor.jarpackage.pack.Packager
 import com.github.gedoor.jarpackage.util.CommonUtils
+import com.github.gedoor.jarpackage.util.JarInfo
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaDirectoryService
@@ -18,7 +19,7 @@ class AllPacker(
     @Throws(Exception::class)
     override fun pack() {
         val allVfs = HashSet<VirtualFile>()
-        val jarInfo = linkedMapOf<String, Path>()
+        val jarInfo = JarInfo()
         for (virtualFile in virtualFiles) {
             val psiDirectory = PsiManager.getInstance(project).findDirectory(virtualFile)
             if (psiDirectory != null) {
@@ -37,9 +38,10 @@ class AllPacker(
                     val vfsList = allVfs.sortedBy { it.path }
                     for (vf in vfsList) {
                         val jarEntryName = vf.path.substring(outIndex)
-                        jarInfo[jarEntryName] = vf.toNioPath()
+                        jarInfo[jarEntryName] = vf
                     }
                 }
+                checkJarIsComplete(jarInfo, psiPackage)
             }
         }
         CommonUtils.createNewJar(project, Path.of(exportPath, exportJarName), jarInfo)

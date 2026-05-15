@@ -1,5 +1,6 @@
 package com.github.gedoor.jarpackage.pack
 
+import com.github.gedoor.jarpackage.util.JarInfo
 import com.github.gedoor.jarpackage.util.Messages
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
@@ -8,6 +9,8 @@ import com.intellij.openapi.application.readAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiPackage
+import kotlinx.io.IOException
 
 abstract class Packager(dataContext: DataContext) {
 
@@ -16,9 +19,6 @@ abstract class Packager(dataContext: DataContext) {
     protected val module = dataContext.getData(LangDataKeys.MODULE)!!
     val javaRoot: VirtualFile? = CompilerModuleExtension.getInstance(module)?.compilerOutputPath
     val outputRoots: ArrayList<VirtualFile> = arrayListOf()
-
-    @Throws(Exception::class)
-    abstract fun pack()
 
     suspend fun invoke() {
         runCatching {
@@ -44,4 +44,41 @@ abstract class Packager(dataContext: DataContext) {
         }
     }
 
+    @Throws(Exception::class)
+    protected abstract fun pack()
+
+    protected fun checkJarIsComplete(jarInfo: JarInfo, psiPackage: PsiPackage) {
+        val classList = psiPackage.getAllTopClassQualifiedNamesRecursive()
+                classList.forEach { className ->
+                    val entryName = className.replace('.', '/')
+                    val findEntryName = jarInfo.keys.find { it.startsWith(entryName) }
+                    if (findEntryName == null) {
+                        throw IOException("$className not found in JarInfo")
+                    }
+                }
+    }
+
+    /**
+     * 获取当前包下所有顶级类全类名（包名.类名），自动排除内部类
+     */
+    protected fun PsiPackage.getTopClassQualifiedNames(): Set<String> {
+        return classes
+            .filter { it.isValid && it.containingClass == null }
+            .mapNotNull { it.qualifiedName }
+            .toSet()
+    }
+
+    /**
+     * 递归获取当前包及所有子包下 全部顶级类全类名
+     */
+    protected fun PsiPackage.getAllTopClassQualifiedNamesRecursive(): Set<String> {
+        val result = hashSetOf<String>()
+        // 当前包类
+        result.addAll(getTopClassQualifiedNames())
+        // 递归子包
+        subPackages.forEach {
+            result.addAll(it.getAllTopClassQualifiedNamesRecursive())
+        }
+        return result
+    }
 }
