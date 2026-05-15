@@ -7,7 +7,8 @@
     <vendor url="https://github.com/DanSheng-bot">kun</vendor>
 
     <description><![CDATA[
-        package files to jar!! https://github.com/DanSheng-bot/idea-JarPackage
+        package files to jar!!<br>
+        https://github.com/DanSheng-bot/idea-JarPackage
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
