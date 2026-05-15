@@ -28,29 +28,24 @@ object Util {
      * 找出给定的字符串列表中所有字符串的“最长公共前缀”
      */
     fun getTheSameStart(strings: List<String>?): String {
-        return if (!strings.isNullOrEmpty()) {
-            var max = 888888
-            for (string in strings) {
-                if (string.length < max) {
-                    max = string.length
-                }
+        if (strings.isNullOrEmpty()) return ""
+
+        // 1. 找出列表中字典序最小和最大的两个字符串
+        // 共同前缀必定完全包含在字典序两极的字符串中
+        val sorted = strings.sorted()
+        val first = sorted.first()
+        val last = sorted.last()
+
+        val sb = StringBuilder()
+        // 2. 只需要比对这两个字符串即可，无需每次都遍历整个列表，也无需使用 HashSet
+        for (i in 0 until minOf(first.length, last.length)) {
+            if (first[i] == last[i]) {
+                sb.append(first[i])
+            } else {
+                break
             }
-            val sb = StringBuilder()
-            val set = HashSet<Char>()
-            for (i in 0 until max) {
-                for (string in strings) {
-                    set.add(string[i])
-                }
-                if (set.size != 1) {
-                    break
-                }
-                sb.append(set.iterator().next())
-                set.clear()
-            }
-            sb.toString()
-        } else {
-            ""
         }
+        return sb.toString()
     }
 
 }
