@@ -1,5 +1,6 @@
 package com.github.gedoor.jarpackage.util
 
+import com.github.gedoor.jarpackage.ui.ActionShowExplorer
 import com.github.gedoor.jarpackage.util.Messages.info
 import com.github.gedoor.jarpackage.util.Messages.notify
 import com.intellij.notification.NotificationType

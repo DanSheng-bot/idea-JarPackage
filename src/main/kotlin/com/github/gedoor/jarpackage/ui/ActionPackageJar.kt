@@ -16,7 +16,7 @@ import com.intellij.psi.PsiPackage
 import org.apache.http.util.TextUtils
 
 @Suppress("ControlFlowWithEmptyBody")
-class Action : AnAction() {
+class ActionPackageJar : AnAction() {
 
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT

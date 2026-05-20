@@ -1,5 +1,6 @@
-package com.github.gedoor.jarpackage.util
+package com.github.gedoor.jarpackage.ui
 
+import com.github.gedoor.jarpackage.util.Constants
 import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

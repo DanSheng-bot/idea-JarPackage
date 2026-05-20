@@ -24,8 +24,8 @@
 
 
     <actions>
-        <action id="com.github.gedoor.jarpackage.ui.Action"
-                class="com.github.gedoor.jarpackage.ui.Action"
+        <action id="com.github.gedoor.jarpackage.ui.ActionPackageJar"
+                class="com.github.gedoor.jarpackage.ui.ActionPackageJar"
                 text="PackageJar">
             <add-to-group group-id="ProjectViewCompileGroup" anchor="after" relative-to-action="Compile"/>
         </action>
