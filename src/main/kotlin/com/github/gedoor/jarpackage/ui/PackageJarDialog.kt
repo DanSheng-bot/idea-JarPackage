@@ -65,7 +65,6 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
                 textField()
                     .bindText({ jarName }, { jarName = it })
                     .columns(COLUMNS_MEDIUM)
-                    // 现在 exportEachCb 已经初始化过了，可以使用 .selected
                     .enabledIf(exportEachProp.not())
                     .comment("The name of the generated .jar file")
             }
@@ -95,7 +94,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         return mainPanel
     }
 
-    // 对应原 java 中的 onOK() 逻辑  [cite: 2, 151-177]
+
     override fun doOKAction() {
         // 更新内部状态
         mainPanel.apply()
@@ -126,7 +125,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         saveSettings()
         super.doOKAction() // 关闭窗口
 
-        // 执行打包逻辑  [cite: 2, 164-173]
+        // 执行打包逻辑
         val packager = if (exportEachProp.get()) {
             EachPacker(dataContext, exportPath.trim())
         } else {
