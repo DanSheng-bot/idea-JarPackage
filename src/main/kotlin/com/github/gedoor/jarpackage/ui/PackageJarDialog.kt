@@ -111,8 +111,16 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
 
         val outDir = File(exportPath.trim())
         if (!outDir.exists()) {
-            showErrorDialog(project, "The selected output path does not exist", "Path Error")
-            return
+            runCatching {
+                outDir.mkdirs()
+            }.onFailure {
+                showErrorDialog(
+                    project,
+                    "The selected output path does not exist and make dir error",
+                    "Path Error"
+                )
+                return
+            }
         }
 
         saveSettings()
