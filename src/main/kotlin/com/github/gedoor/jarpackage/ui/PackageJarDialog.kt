@@ -22,6 +22,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.task.ProjectTaskListener
 import com.intellij.task.ProjectTaskManager
 import com.intellij.ui.dsl.builder.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
@@ -30,6 +31,7 @@ import java.io.FileOutputStream
 import java.util.*
 import javax.swing.JComponent
 import kotlin.coroutines.resume
+import kotlin.time.Duration.Companion.seconds
 
 class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(true) {
 
@@ -135,6 +137,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         val packageService = project.service<PackageService>()
         packageService.coroutineScope.launch {
             if (executeBuild(project, module)) {
+                delay(1.seconds)
                 packager.invoke()
             }
         }
