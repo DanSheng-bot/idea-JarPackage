@@ -17,12 +17,14 @@ abstract class Packager(dataContext: DataContext) {
     protected val project: Project = dataContext.getData(CommonDataKeys.PROJECT)!!
     protected val virtualFiles: Array<VirtualFile> = dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)!!
     protected val module = dataContext.getData(LangDataKeys.MODULE)!!
-    val javaRoot: VirtualFile? = CompilerModuleExtension.getInstance(module)?.compilerOutputPath
     val outputRoots: ArrayList<VirtualFile> = arrayListOf()
 
     suspend fun invoke() {
         runCatching {
+            val javaRoot: VirtualFile? = CompilerModuleExtension.getInstance(module)?.compilerOutputPath
             if (javaRoot != null) {
+                // false 表示同步刷新，true 表示递归
+                javaRoot.refresh(false, true)
                 outputRoots.add(javaRoot)
 
                 // 2. 向上找两级到 classes/ 目录
@@ -33,6 +35,8 @@ abstract class Packager(dataContext: DataContext) {
                 val kotlinRoot = classesDir?.findChild("kotlin")?.findChild(javaRoot.name)
 
                 if (kotlinRoot != null && kotlinRoot.exists()) {
+                    // false 表示同步刷新，true 表示递归
+                    kotlinRoot.refresh(false, true)
                     outputRoots.add(kotlinRoot)
                 }
             }

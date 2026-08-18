@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.observable.util.not
@@ -136,6 +137,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
 
         val packageService = project.service<PackageService>()
         packageService.coroutineScope.launch {
+            FileDocumentManager.getInstance().saveAllDocuments()
             if (executeBuild(project, module)) {
                 delay(1.seconds)
                 packager.invoke()
@@ -146,7 +148,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
     suspend fun executeBuild(project: Project, ideaModule: Module): Boolean {
         val taskManager = ProjectTaskManager.getInstance(project)
         // 使用 ProjectTaskListener 订阅编译总线
-        val isSuccess = suspendCancellableCoroutine<Boolean> { continuation ->
+        val isSuccess = suspendCancellableCoroutine { continuation ->
             val connection = project.messageBus.connect()
             connection.subscribe(ProjectTaskListener.TOPIC, object : ProjectTaskListener {
                 override fun finished(result: ProjectTaskManager.Result) {
