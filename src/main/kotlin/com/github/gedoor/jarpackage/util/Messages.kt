@@ -7,6 +7,7 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
@@ -37,8 +38,8 @@ object Messages : Constants {
     }
 
     @JvmStatic
-    fun info(project: Project, text: String) {
-        message(project, text, 3)
+    fun info(project: Project, text: String, file: VirtualFile? = null) {
+        message(project, text, 3, file)
     }
 
     @JvmStatic
@@ -48,7 +49,7 @@ object Messages : Constants {
     }
 
     @JvmStatic
-    fun message(project: Project, text: String, type: Int) {
+    fun message(project: Project, text: String, type: Int, file: VirtualFile? = null) {
         ApplicationManager.getApplication().invokeLater {
             val messageView = MessageView.getInstance(project)
             messageView.runWhenInitialized {
@@ -65,9 +66,10 @@ object Messages : Constants {
                     packMessages = ProblemsViewPanel(project)
                     val content = ContentFactory.getInstance().createContent(packMessages, ID, true)
                     messageView.contentManager.addContent(content)
+                    @Suppress("UsePropertyAccessSyntax")
                     messageView.contentManager.setSelectedContent(content)
                 }
-                packMessages.addMessage(type, arrayOf(text), null, -1, -1, null)
+                packMessages.addMessage(type, arrayOf(text), file, -1, -1, null)
             }
         }
     }

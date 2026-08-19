@@ -1,10 +1,12 @@
 package com.github.gedoor.jarpackage.util
 
+import com.github.gedoor.jarpackage.ui.ActionOpenFile
 import com.github.gedoor.jarpackage.ui.ActionShowExplorer
 import com.github.gedoor.jarpackage.util.Messages.info
 import com.github.gedoor.jarpackage.util.Messages.notify
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.org.objectweb.asm.Opcodes
 import java.io.BufferedOutputStream
@@ -78,12 +80,16 @@ object CommonUtils {
                             jos.closeEntry()
                             info(project, "packed $entryName")
                         }
-                        info(project, "packageJar success $jarFileFullPath")
+                        val file = LocalFileSystem.getInstance().findFileByNioFile(jarFileFullPath)
+                        info(project, "packageJar success", file)
                         notify(
                             NotificationType.INFORMATION,
                             "packageJar Success",
                             jarFileFullPath.toString(),
-                            listOf(ActionShowExplorer(jarFileFullPath))
+                            listOf(
+                                ActionShowExplorer(jarFileFullPath),
+                                ActionOpenFile(jarFileFullPath)
+                            )
                         )
                     }
                 }
