@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.CompilerModuleExtension
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiPackage
 import kotlinx.io.IOException
@@ -23,20 +24,20 @@ abstract class Packager(dataContext: DataContext) {
         runCatching {
             val javaRoot: VirtualFile? = CompilerModuleExtension.getInstance(module)?.compilerOutputPath
             if (javaRoot != null) {
-                // false 表示同步刷新，true 表示递归
-                javaRoot.refresh(false, true)
-                outputRoots.add(javaRoot)
-
-                // 2. 向上找两级到 classes/ 目录
+                //向上找两级到 classes/ 目录
                 val classesDir = javaRoot.parent?.parent
+                if (classesDir != null) {
+                    // true 表示同步（Synchronous），true 表示递归（Recursive）
+                    // markDirtyAndRefresh 是目前最强力的 VFS 刷新手段
+                    VfsUtil.markDirtyAndRefresh(false, true, true, classesDir)
+                }
+                outputRoots.add(javaRoot)
 
                 // 3. 横向寻找对应的 kotlin 编译目录 (如: .../build/classes/kotlin/main)
                 // javaRoot.name 通常是 "main" 或 "test"
                 val kotlinRoot = classesDir?.findChild("kotlin")?.findChild(javaRoot.name)
 
                 if (kotlinRoot != null && kotlinRoot.exists()) {
-                    // false 表示同步刷新，true 表示递归
-                    kotlinRoot.refresh(false, true)
                     outputRoots.add(kotlinRoot)
                 }
             }
