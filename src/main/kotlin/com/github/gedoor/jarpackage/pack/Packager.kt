@@ -33,10 +33,9 @@ abstract class Packager(dataContext: DataContext) {
                 }
                 outputRoots.add(javaRoot)
 
-                // 3. 横向寻找对应的 kotlin 编译目录 (如: .../build/classes/kotlin/main)
+                // 横向寻找对应的 kotlin 编译目录 (如: .../build/classes/kotlin/main)
                 // javaRoot.name 通常是 "main" 或 "test"
                 val kotlinRoot = classesDir?.findChild("kotlin")?.findChild(javaRoot.name)
-
                 if (kotlinRoot != null && kotlinRoot.exists()) {
                     outputRoots.add(kotlinRoot)
                 }
