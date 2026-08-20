@@ -43,8 +43,8 @@ object Messages : Constants {
     }
 
     @JvmStatic
-    fun error(project: Project, text: String) {
-        message(project, text, 4)
+    fun error(project: Project, text: String, file: VirtualFile? = null) {
+        message(project, text, 4, file)
         notify(NotificationType.ERROR, "PackageJar error", text)
     }
 

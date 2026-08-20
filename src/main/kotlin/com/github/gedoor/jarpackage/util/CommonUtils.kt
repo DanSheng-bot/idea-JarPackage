@@ -6,7 +6,6 @@ import com.github.gedoor.jarpackage.util.Messages.info
 import com.github.gedoor.jarpackage.util.Messages.notify
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.org.objectweb.asm.Opcodes
 import java.io.BufferedOutputStream
@@ -80,8 +79,7 @@ object CommonUtils {
                             jos.closeEntry()
                             info(project, "packed $entryName")
                         }
-                        val file = LocalFileSystem.getInstance().findFileByNioFile(jarFileFullPath)
-                        info(project, "packageJar success", file)
+                        info(project, "packageJar success: $jarFileFullPath")
                         notify(
                             NotificationType.INFORMATION,
                             "packageJar Success",
