@@ -15,6 +15,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.observable.util.not
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages.showErrorDialog
@@ -198,7 +199,8 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
             }
 
             // 3. 读取路径逻辑
-            exportPath = properties.getProperty(key) ?: (File(project.basePath!!).parent + File.separator + "JAR")
+            exportPath = properties.getProperty(key)
+                ?: (CompilerModuleExtension.getInstance(module)!!.compilerOutputPath!!.path + File.separator + "JAR")
 
         } catch (e: Exception) {
             Messages.error(project, e.toString())
