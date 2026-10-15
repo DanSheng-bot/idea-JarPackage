@@ -11,7 +11,9 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiPackage
+import kotlinx.coroutines.delay
 import kotlinx.io.IOException
+import kotlin.time.Duration.Companion.seconds
 
 abstract class Packager(dataContext: DataContext) {
 
@@ -40,6 +42,7 @@ abstract class Packager(dataContext: DataContext) {
                     outputRoots.add(kotlinRoot)
                 }
             }
+            delay(1.seconds)
             readAction {
                 pack()
             }
