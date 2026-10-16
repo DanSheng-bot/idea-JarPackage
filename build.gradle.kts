@@ -6,6 +6,11 @@ plugins {
     id("org.jetbrains.changelog")
 }
 
+tasks.runIde {
+    jvmArgs("-Dfile.encoding=UTF-8")
+    jvmArgs("-Dconsole.encoding=UTF-8")
+}
+
 dependencies {
     testImplementation("junit:junit:4.13.2")
 
