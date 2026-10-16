@@ -8,6 +8,7 @@ import com.github.gedoor.jarpackage.util.Util
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -134,10 +135,13 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         } else {
             AllPacker(dataContext, exportPath.trim(), finalJarName)
         }
-
+        //提交保存所有打开文档
+        FileDocumentManager.getInstance().saveAllDocuments()
+        ApplicationManager.getApplication().invokeAndWait {
+            // 空块，作用：等待UI消息队列执行完毕，保证save任务落盘
+        }
         val packageService = project.service<PackageService>()
         packageService.coroutineScope.launch {
-            FileDocumentManager.getInstance().saveAllDocuments()
             if (executeBuild(project, module)) {
                 delay(1.seconds)
                 packager.invoke()
@@ -150,6 +154,9 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         // 使用 ProjectTaskListener 订阅编译总线
         val isSuccess = suspendCancellableCoroutine { continuation ->
             val connection = project.messageBus.connect()
+            continuation.invokeOnCancellation {
+                connection.disconnect()
+            }
             connection.subscribe(ProjectTaskListener.TOPIC, object : ProjectTaskListener {
                 override fun finished(result: ProjectTaskManager.Result) {
                     connection.disconnect()
