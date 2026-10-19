@@ -142,6 +142,8 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
         }
         val packageService = project.service<PackageService>()
         packageService.coroutineScope.launch {
+            executeBuild(project, module)
+            delay(1.seconds)
             if (executeBuild(project, module)) {
                 delay(1.seconds)
                 packager.invoke()
