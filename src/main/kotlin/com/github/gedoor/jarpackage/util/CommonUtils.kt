@@ -64,6 +64,7 @@ object CommonUtils {
         mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
         mainAttributes[Attributes.Name("Created-By")] = Constants.creator
         try {
+            Files.deleteIfExists(jarFileFullPath)
             Files.newOutputStream(jarFileFullPath).use { os ->
                 BufferedOutputStream(os).use { bos ->
                     JarOutputStream(bos, manifest).use { jos ->

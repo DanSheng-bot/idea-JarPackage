@@ -208,7 +208,7 @@ class PackageJarDialog(private val dataContext: DataContext) : DialogWrapper(tru
 
             // 3. 读取路径逻辑
             exportPath = properties.getProperty(key)
-                ?: (File(project.basePath!!, "out").path + File.separator + "JAR")
+                ?: (File(project.basePath!!).parent + File.separator + "JAR")
 
         } catch (e: Exception) {
             Messages.error(project, e.toString())
